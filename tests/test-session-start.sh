@@ -22,4 +22,8 @@ assert_json_path "$out_cursor" "'additional_context' in d" "cursor uses top-leve
 out_copilot=$(COPILOT_CLI=1 CLAUDE_PLUGIN_ROOT="$ROOT" bash "$HOOK" 2>/dev/null)
 assert_json_path "$out_copilot" "'additionalContext' in d" "copilot uses top-level additionalContext"
 
+# run-hook.cmd should dispatch to the named script on Unix
+out_wrap=$(CLAUDE_PLUGIN_ROOT="$ROOT" bash "$ROOT/hooks/run-hook.cmd" session-start 2>/dev/null)
+assert_json_valid "$out_wrap" "run-hook.cmd dispatches session-start (valid JSON)"
+
 finish
