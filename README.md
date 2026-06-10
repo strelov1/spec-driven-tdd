@@ -1,5 +1,7 @@
 # spec-driven-tdd
 
+[![skills.sh](https://skills.sh/b/strelov1/spec-driven-tdd)](https://skills.sh/strelov1/spec-driven-tdd)
+
 An installable, multi-harness skill-pack that fuses **OpenSpec** (planning +
 task tracking) with **Superpowers** (TDD, simplify, code review) into one
 delivery loop.
@@ -13,6 +15,16 @@ review, not at green tests.
 - Works across Claude Code, Codex, Cursor, Gemini, and opencode.
 
 ## Install
+
+Via the [`skills`](https://github.com/vercel-labs/skills) CLI — works today,
+straight from GitHub, installs the three skills into your agent:
+
+```bash
+npx skills add strelov1/spec-driven-tdd
+```
+
+Or the **full pack** (skills + SessionStart hook + per-harness manifests) via the
+npm installer:
 
 ```bash
 npx spec-driven-tdd install
