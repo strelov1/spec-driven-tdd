@@ -1,0 +1,6 @@
+{
+  "name": "spec-driven-tdd",
+  "description": "Plan and track in OpenSpec; implement with TDD, simplify, and code review.",
+  "version": "0.1.0",
+  "contextFileName": "GEMINI.md"
+}

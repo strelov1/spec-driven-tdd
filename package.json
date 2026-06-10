@@ -1,0 +1,9 @@
+{
+  "name": "spec-driven-tdd",
+  "version": "0.1.0",
+  "description": "Orchestrator skill-pack fusing OpenSpec planning with Superpowers execution discipline.",
+  "license": "MIT",
+  "scripts": {
+    "test": "bash tests/run-all.sh"
+  }
+}
