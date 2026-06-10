@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# SessionStart hook for the spec-driven-tdd pack.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+entry_content=$(cat "${PLUGIN_ROOT}/skills/using-spec-driven-tdd/SKILL.md" 2>&1 \
+  || echo "Error reading using-spec-driven-tdd skill")
+
+escape_for_json() {
+  local s="$1"
+  s="${s//\\/\\\\}"
+  s="${s//\"/\\\"}"
+  s="${s//$'\n'/\\n}"
+  s="${s//$'\r'/\\r}"
+  s="${s//$'\t'/\\t}"
+  printf '%s' "$s"
+}
+
+entry_escaped=$(escape_for_json "$entry_content")
+session_context="<EXTREMELY_IMPORTANT>\nYou have the spec-driven-tdd workflow.\n\n**Below is the full content of your 'using-spec-driven-tdd' entry skill. Invoke the 'spec-driven-tdd' skill when implementing an OpenSpec change.**\n\n${entry_escaped}\n</EXTREMELY_IMPORTANT>"
+
+if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
+  printf '{\n  "additional_context": "%s"\n}\n' "$session_context"
+elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && [ -z "${COPILOT_CLI:-}" ]; then
+  printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$session_context"
+else
+  printf '{\n  "additionalContext": "%s"\n}\n' "$session_context"
+fi
+
+exit 0
