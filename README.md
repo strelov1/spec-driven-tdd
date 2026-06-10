@@ -1,7 +1,5 @@
 # spec-driven-tdd
 
-[![skills.sh](https://skills.sh/b/strelov1/spec-driven-tdd)](https://skills.sh/strelov1/spec-driven-tdd)
-
 An installable, multi-harness skill-pack that fuses **OpenSpec** (planning +
 task tracking) with **Superpowers** (TDD, simplify, code review) into one
 delivery loop.
