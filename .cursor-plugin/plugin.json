@@ -1,0 +1,9 @@
+{
+  "name": "spec-driven-tdd",
+  "description": "Plan and track in OpenSpec; implement with TDD, simplify, and code review. An orchestrator skill-pack.",
+  "version": "0.1.0",
+  "author": { "name": "strelov1", "email": "strelov1@gmail.com" },
+  "license": "MIT",
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks-cursor.json"
+}
