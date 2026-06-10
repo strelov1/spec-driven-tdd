@@ -99,8 +99,12 @@ spec-driven-tdd/
    - Claude Code: `hookSpecificOutput.additionalContext`
    - Cursor: `additional_context` (snake_case)
    - Copilot/SDK standard: top-level `additionalContext`
-4. The entry skill is short: it tells the agent the workflow exists and when to
-   invoke the full `spec-driven-tdd` skill.
+4. The entry skill is the analogue of Superpowers' `using-superpowers`: short,
+   always injected, and it establishes the discipline for this pack — that the
+   `spec-driven-tdd` workflow exists, when to invoke it (whenever implementing
+   an OpenSpec change), and that its steps must be followed rather than
+   improvised. It points to the full `spec-driven-tdd` skill for the actual
+   lifecycle and does not duplicate it.
 
 ### The orchestrated lifecycle
 
@@ -110,8 +114,15 @@ existing skill/command** rather than reimplementing it.
 | Phase | Delegates to | Interlock rule |
 |-------|--------------|----------------|
 | Plan | `/opsx:propose` (which itself uses `brainstorming`) | OpenSpec is the single source of truth for scope and the task list. |
-| Implement (per task from `/opsx:apply`) | `test-driven-development` → our `simplify` skill → bug-review | Mark `[x]` only after a clean review. RED before any production code. Unexpected failure → `systematic-debugging`. |
+| Isolate | `using-git-worktrees` | Create a worktree for the change before implementation so the main workspace stays clean; pairs with `finishing-a-development-branch`. |
+| Implement (per task from `/opsx:apply`) | `test-driven-development` → our `simplify` skill → bug-review (`requesting-code-review` + `receiving-code-review`) | Mark `[x]` only after a clean review. RED before any production code. Unexpected failure → `systematic-debugging`. |
 | Finish | `verification-before-completion` → `finishing-a-development-branch` → `/opsx:archive` + `/opsx:sync` | Tracking closes in OpenSpec. |
+
+For large changes, the Implement phase may run in an **optional subagent-driven
+mode** (`subagent-driven-development`): dispatch each OpenSpec task to a subagent
+with per-task review, instead of the default inline `/opsx:apply` loop. This is a
+mode the orchestrator offers, not the default — the default loop runs inline to
+match how `/opsx:apply` works.
 
 Per-task micro-cycle:
 
@@ -145,6 +156,25 @@ Only the optional second bug pass remains harness-specific:
 The orchestrator detects/declares its dependencies and warns when one is missing
 rather than failing silently.
 
+### Composition policy: depend, don't vendor
+
+The pack composes existing skills by invoking them by name; it does not copy
+them. Superpowers already supports every target harness, so vendoring its skills
+would only duplicate content and drift from upstream. The single exception is
+`simplify`, vendored because it has no portable equivalent (the Claude Code
+`/simplify` is a built-in with no copyable source).
+
+Superpowers skills the orchestrator invokes:
+
+- **Wired into the lifecycle:** `test-driven-development`, `requesting-code-review`,
+  `receiving-code-review`, `systematic-debugging`, `verification-before-completion`,
+  `finishing-a-development-branch`, `using-git-worktrees`, and `brainstorming`
+  (via `/opsx:propose`).
+- **Optional modes:** `subagent-driven-development` (large changes),
+  `dispatching-parallel-agents` (independent tasks).
+- **Not used:** `executing-plans` (OpenSpec `tasks.md` is the plan),
+  `using-superpowers` / `writing-skills` (meta).
+
 ### The vendored `simplify` skill
 
 Adapted from the `code-simplifier` agent (claude-plugins-official). We keep its
@@ -165,9 +195,10 @@ It applies edits, so the loop re-runs tests after it and before the bug review.
 
 - **OpenSpec CLI** installed and a project initialized (`openspec/config.yaml`).
 - **Superpowers** installed (provides `test-driven-development`,
-  `requesting-code-review`, `systematic-debugging`,
+  `requesting-code-review`, `receiving-code-review`, `systematic-debugging`,
   `verification-before-completion`, `finishing-a-development-branch`,
-  `brainstorming`).
+  `using-git-worktrees`, `brainstorming`, and the optional
+  `subagent-driven-development` / `dispatching-parallel-agents`).
 - **Claude Code only:** `/code-review` (optional enhancement, not required).
 
 The quality pass is **not** a dependency — it ships in the pack as the vendored
