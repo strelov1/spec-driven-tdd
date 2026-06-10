@@ -76,6 +76,9 @@ spec-driven-tdd/
   skills/
     using-spec-driven-tdd/SKILL.md   entry skill (injected by the hook)
     spec-driven-tdd/SKILL.md         the orchestrator workflow
+    simplify/SKILL.md                vendored, portable quality pass
+                                     (adapted from the `code-simplifier` agent;
+                                      language-agnostic; works on every harness)
   docs/
     workflow.md         the lifecycle in detail
     dependencies.md     what must be installed, and degradation rules
@@ -107,14 +110,14 @@ existing skill/command** rather than reimplementing it.
 | Phase | Delegates to | Interlock rule |
 |-------|--------------|----------------|
 | Plan | `/opsx:propose` (which itself uses `brainstorming`) | OpenSpec is the single source of truth for scope and the task list. |
-| Implement (per task from `/opsx:apply`) | `test-driven-development` → simplify → bug-review | Mark `[x]` only after a clean review. RED before any production code. Unexpected failure → `systematic-debugging`. |
+| Implement (per task from `/opsx:apply`) | `test-driven-development` → our `simplify` skill → bug-review | Mark `[x]` only after a clean review. RED before any production code. Unexpected failure → `systematic-debugging`. |
 | Finish | `verification-before-completion` → `finishing-a-development-branch` → `/opsx:archive` + `/opsx:sync` | Tracking closes in OpenSpec. |
 
 Per-task micro-cycle:
 
 ```
 RED  → GREEN → REFACTOR (TDD, unit-local)
-     → simplify (diff-wide quality, auto-applies)
+     → simplify (our vendored `simplify` skill; diff-wide quality, applies edits)
      → re-run tests (must stay green)
      → bug review (correctness / requirements)
      → fix Critical + Important
@@ -126,18 +129,37 @@ A task is "done" not at GREEN but after its review is clean. Review cadence is
 
 ### Cross-harness degradation
 
-`/simplify` and `/code-review` are Claude Code built-ins; they do not exist on
-Codex, Cursor, Gemini, or opencode. The design degrades:
+The quality pass is now a **vendored skill** (`skills/simplify`), not the Claude
+Code `/simplify` built-in, so it runs identically on every harness — no
+degradation needed for simplification.
 
+Only the optional second bug pass remains harness-specific:
+
+- **Quality pass (portable):** our `simplify` skill — works everywhere.
 - **Bug review (portable default):** Superpowers `requesting-code-review` — a
   normal skill available wherever Superpowers is installed.
-- **On Claude Code (enhanced):** add `/simplify` as the quality pass and
-  optionally `/code-review` for an additional built-in bug pass.
-- **Where `/simplify` is absent:** the simplify step collapses into TDD's
-  REFACTOR (unit-local cleanup), so the loop still holds.
+- **On Claude Code (optional enhancement):** `/code-review` for an additional
+  built-in bug pass. Absent elsewhere; the portable default already covers the
+  loop, so nothing breaks.
 
-The orchestrator detects/declares these dependencies and warns when one is
-missing rather than failing silently.
+The orchestrator detects/declares its dependencies and warns when one is missing
+rather than failing silently.
+
+### The vendored `simplify` skill
+
+Adapted from the `code-simplifier` agent (claude-plugins-official). We keep its
+language-agnostic principles and drop its JS/React-specific examples:
+
+- **Preserve functionality** — change how, never what.
+- **Apply project standards** — read the harness's context file (CLAUDE.md /
+  AGENTS.md / GEMINI.md) for conventions instead of hardcoded ones.
+- **Enhance clarity** — reduce nesting, remove redundancy and dead abstractions,
+  clearer names; explicit over clever; no nested ternaries.
+- **Maintain balance** — no over-simplification that hurts readability or
+  debuggability.
+- **Focus scope** — only code touched in the current task, unless told otherwise.
+
+It applies edits, so the loop re-runs tests after it and before the bug review.
 
 ### Dependencies
 
@@ -146,7 +168,10 @@ missing rather than failing silently.
   `requesting-code-review`, `systematic-debugging`,
   `verification-before-completion`, `finishing-a-development-branch`,
   `brainstorming`).
-- **Claude Code only:** `/simplify`, `/code-review` (enhancements, not required).
+- **Claude Code only:** `/code-review` (optional enhancement, not required).
+
+The quality pass is **not** a dependency — it ships in the pack as the vendored
+`simplify` skill.
 
 Documented in `docs/dependencies.md`; surfaced by the orchestrator at runtime.
 
