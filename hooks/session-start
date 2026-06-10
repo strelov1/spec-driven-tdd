@@ -5,7 +5,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-entry_content=$(cat "${PLUGIN_ROOT}/skills/using-spec-driven-tdd/SKILL.md" 2>&1 \
+entry_content=$(cat "${PLUGIN_ROOT}/skills/using-spec-driven-tdd/SKILL.md" 2>/dev/null \
   || echo "Error reading using-spec-driven-tdd skill")
 
 escape_for_json() {
@@ -15,6 +15,8 @@ escape_for_json() {
   s="${s//$'\n'/\\n}"
   s="${s//$'\r'/\\r}"
   s="${s//$'\t'/\\t}"
+  s="${s//$'\f'/\\f}"
+  s="${s//$'\b'/\\b}"
   printf '%s' "$s"
 }
 
