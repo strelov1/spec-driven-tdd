@@ -2,8 +2,8 @@
 
 | Dependency | Required? | Provides |
 |------------|-----------|----------|
-| OpenSpec CLI + initialized project | Yes | `/opsx:*`, change/task tracking |
-| Superpowers | Yes | TDD, code review, debugging, worktrees, finishing, brainstorming |
+| [OpenSpec](https://www.npmjs.com/package/@fission-ai/openspec) CLI + initialized project | Yes (npm dep) | `/opsx:*`, change/task tracking |
+| [Superpowers](https://github.com/obra/superpowers) | Yes (CC marketplace, no npm) | TDD, code review, debugging, worktrees, finishing, brainstorming |
 | `simplify` skill | Bundled | quality pass (ships in this pack) |
 | Claude Code `/code-review` | Optional | extra built-in bug pass (CC only) |
 

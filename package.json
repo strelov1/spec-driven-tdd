@@ -3,7 +3,30 @@
   "version": "0.1.0",
   "description": "Orchestrator skill-pack fusing OpenSpec planning with Superpowers execution discipline.",
   "license": "MIT",
+  "author": { "name": "strelov1", "email": "strelov1@gmail.com" },
+  "homepage": "https://github.com/strelov1/spec-driven-tdd#readme",
+  "repository": { "type": "git", "url": "git+https://github.com/strelov1/spec-driven-tdd.git" },
+  "bugs": { "url": "https://github.com/strelov1/spec-driven-tdd/issues" },
+  "keywords": ["openspec", "tdd", "spec-driven", "workflow", "code-review", "claude-code", "skills"],
+  "bin": { "spec-driven-tdd": "bin/cli.js" },
+  "engines": { "node": ">=18" },
+  "files": [
+    "bin/",
+    "skills/",
+    "hooks/",
+    ".claude-plugin/",
+    ".codex-plugin/",
+    ".cursor-plugin/",
+    "gemini-extension.json",
+    "AGENTS.md",
+    "GEMINI.md",
+    "CLAUDE.md",
+    "docs/"
+  ],
   "scripts": {
     "test": "bash tests/run-all.sh"
+  },
+  "dependencies": {
+    "@fission-ai/openspec": "^1.4.1"
   }
 }

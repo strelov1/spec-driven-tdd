@@ -14,8 +14,15 @@ review, not at green tests.
 
 ## Install
 
-See [docs/installation.md](docs/installation.md). Requires OpenSpec and
-Superpowers — see [docs/dependencies.md](docs/dependencies.md).
+```bash
+npx spec-driven-tdd install
+```
+
+Requires **OpenSpec** (npm dependency, pulled automatically) and
+**[Superpowers](https://github.com/obra/superpowers)** (Claude Code marketplace,
+no npm package — `/plugin install superpowers@claude-plugins-official`). Full
+steps in [docs/installation.md](docs/installation.md); what each provides is in
+[docs/dependencies.md](docs/dependencies.md).
 
 ## Workflow
 
@@ -32,21 +39,22 @@ same entry context from a static `AGENTS.md` / `GEMINI.md`. Either way the agent
 boots knowing the workflow exists.
 
 ```mermaid
-flowchart TD
-    A["Session start<br/>(startup · clear · compact)"] --> B{"How does the harness<br/>inject context?"}
-    B -->|hook-driven| H1["Claude Code · Cursor · opencode<br/>manifest declares a SessionStart hook"]
-    B -->|static context| S1["Codex · Gemini<br/>read AGENTS.md / GEMINI.md directly"]
-    H1 --> D["hooks/run-hook.cmd session-start<br/>(polyglot: cmd.exe → bash on Windows, bash on Unix)"]
-    D --> E["hooks/session-start"]
-    E --> F["cat skills/using-spec-driven-tdd/SKILL.md<br/>escape_for_json() · wrap in EXTREMELY_IMPORTANT"]
-    F --> H{"Branch on harness env var"}
-    H -->|CURSOR_PLUGIN_ROOT| I1["additional_context"]
-    H -->|CLAUDE_PLUGIN_ROOT| I2["hookSpecificOutput.additionalContext"]
-    H -->|default| I3["additionalContext (SDK / opencode)"]
-    I1 --> J["printf '%s' → valid JSON on stdout"]
-    I2 --> J
-    I3 --> J
-    J --> K["Entry-skill context loaded:<br/>'invoke spec-driven-tdd for an OpenSpec change'"]
+flowchart LR
+    A["Session start<br/>startup · clear · compact"] --> B{"Context<br/>injection?"}
+    B -->|"hook-driven<br/>Claude Code · Cursor · opencode"| D
+    B -->|"static<br/>Codex · Gemini"| S1["read AGENTS.md /<br/>GEMINI.md directly"]
+
+    subgraph HOOK ["SessionStart hook"]
+        direction TB
+        D["run-hook.cmd → session-start<br/>polyglot bash wrapper"] --> F["cat entry SKILL.md ·<br/>escape_for_json()"]
+        F --> H{"harness<br/>env var?"}
+        H -->|CURSOR_PLUGIN_ROOT| I1["additional_context"]
+        H -->|CLAUDE_PLUGIN_ROOT| I2["hookSpecificOutput<br/>.additionalContext"]
+        H -->|default| I3["additionalContext"]
+    end
+
+    I1 & I2 & I3 --> J["valid JSON<br/>on stdout"]
+    J --> K["Entry skill loaded →<br/>invoke spec-driven-tdd"]
     S1 --> K
 ```
 
@@ -58,17 +66,17 @@ review — not at green tests.
 
 ```mermaid
 flowchart LR
-    Entry["using-spec-driven-tdd<br/>(entry skill)"] --> Orch["spec-driven-tdd<br/>(orchestrator)"]
-    Orch --> P1["PLAN<br/>OpenSpec /opsx:propose<br/>+ brainstorming"]
-    P1 --> P2["ISOLATE<br/>1 change = 1 worktree"]
-    P2 --> P3["IMPLEMENT<br/>per-task loop"]
-    P3 --> P4["FINISH<br/>verify → finish branch<br/>→ /opsx:archive + sync"]
+    Entry["using-spec-driven-tdd<br/>entry skill"] --> Orch["spec-driven-tdd<br/>orchestrator"]
+    Orch --> P1["1 · PLAN<br/>/opsx:propose + brainstorming"]
+    P1 --> P2["2 · ISOLATE<br/>1 change = 1 worktree"]
+    P2 --> P3["3 · IMPLEMENT<br/>per-task loop"]
+    P3 --> P4["4 · FINISH<br/>verify → finish branch<br/>→ /opsx:archive + sync"]
 
-    subgraph Loop["per-task micro-cycle"]
-        direction LR
-        R["RED"] --> G["GREEN"] --> RF["REFACTOR"] --> S["simplify"] --> RT["re-test"] --> RV["REVIEW"] --> FX["fix Critical/Important"] --> X["mark [x]"]
+    subgraph Loop ["per-task micro-cycle"]
+        direction TB
+        R["RED"] --> G["GREEN"] --> RF["REFACTOR"] --> S["simplify"] --> RT["re-test"] --> RV["REVIEW"] --> FX["fix Crit/Imp"] --> X["mark [x]"]
     end
-    P3 -.repeat per task.-> R
+    P3 -.per task.-> R
 ```
 
 Dependencies are composed by name (OpenSpec CLI, Superpowers); only `simplify`
