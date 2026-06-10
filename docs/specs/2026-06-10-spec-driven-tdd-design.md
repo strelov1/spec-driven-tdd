@@ -65,7 +65,7 @@ spec-driven-tdd/
   .claude-plugin/plugin.json     Claude Code manifest
   .codex-plugin/plugin.json      Codex manifest
   .cursor-plugin/plugin.json     Cursor manifest
-  .opencode/{INSTALL.md,plugins} opencode adapter
+  .opencode/INSTALL.md           opencode adapter
   gemini-extension.json          Gemini extension (contextFileName: GEMINI.md)
   CLAUDE.md  AGENTS.md  GEMINI.md per-harness context files
   hooks/

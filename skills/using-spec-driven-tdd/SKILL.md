@@ -19,7 +19,8 @@ following it.
 
 ## What it composes
 
-- **Plan / track:** OpenSpec (`/opsx:propose`, `/opsx:apply`, `/opsx:archive`).
+- **Plan / track:** OpenSpec (`/opsx:propose`, `/opsx:apply`, `/opsx:archive`,
+  `/opsx:sync`).
 - **Execute:** Superpowers (`test-driven-development`, `requesting-code-review`,
   `receiving-code-review`, `systematic-debugging`, `using-git-worktrees`,
   `verification-before-completion`, `finishing-a-development-branch`) plus this
