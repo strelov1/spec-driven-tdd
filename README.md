@@ -75,18 +75,27 @@ orchestrator, which drives a four-phase loop. A task is `[x]` only after a clean
 review — not at green tests.
 
 ```mermaid
-flowchart LR
-    Entry["using-spec-driven-tdd<br/>entry skill"] --> Orch["spec-driven-tdd<br/>orchestrator"]
-    Orch --> P1["1 · PLAN<br/>/opsx:propose + brainstorming"]
-    P1 --> P2["2 · ISOLATE<br/>1 change = 1 worktree"]
-    P2 --> P3["3 · IMPLEMENT<br/>per-task loop"]
-    P3 --> P4["4 · FINISH<br/>verify → finish branch<br/>→ /opsx:archive + sync"]
+flowchart TD
+    Entry["using-spec-driven-tdd<br/>entry skill — triggers the workflow"]
+    Entry --> Orch["spec-driven-tdd · orchestrator"]
+    Orch --> P1["1 · PLAN — OpenSpec<br/>/opsx:propose + brainstorming<br/>owns scope + task list"]
+    P1 --> P2["2 · ISOLATE — Superpowers<br/>using-git-worktrees<br/>one change = one worktree"]
+    P2 --> P3["3 · IMPLEMENT<br/>/opsx:apply → loop over tasks"]
 
     subgraph Loop ["per-task micro-cycle"]
         direction TB
-        R["RED"] --> G["GREEN"] --> RF["REFACTOR"] --> S["simplify"] --> RT["re-test"] --> RV["REVIEW"] --> FX["fix Crit/Imp"] --> X["mark [x]"]
+        R["RED · write a failing test"]
+        R --> G["GREEN · minimal code to pass"]
+        G --> RF["REFACTOR · local cleanup, stay green"]
+        RF --> S["simplify · diff-wide quality pass"]
+        S --> RT["re-run tests · must stay green"]
+        RT --> RV["REVIEW · request + receive<br/>fix Critical + Important"]
+        RV --> X["mark task [x]<br/>only after a clean review"]
+        X -.next task.-> R
     end
-    P3 -.per task.-> R
+
+    P3 --> Loop
+    Loop --> P4["4 · FINISH<br/>verification-before-completion<br/>finishing-a-development-branch<br/>/opsx:archive + /opsx:sync"]
 ```
 
 Dependencies are composed by name (OpenSpec CLI, Superpowers); only `simplify`
