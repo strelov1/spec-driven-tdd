@@ -21,7 +21,10 @@
     "AGENTS.md",
     "GEMINI.md",
     "CLAUDE.md",
-    "docs/"
+    "docs/installation.md",
+    "docs/dependencies.md",
+    "docs/workflow.md",
+    "docs/supported-tools.md"
   ],
   "scripts": {
     "test": "bash tests/run-all.sh"
