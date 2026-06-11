@@ -8,8 +8,8 @@ Plan in OpenSpec → isolate in a worktree → implement each task via
 TDD → simplify → review → finish and archive. A task is done only after a clean
 review, not at green tests.
 
-- Composes existing skills by name (depend, not vendor). The only vendored skill
-  is the portable `simplify`.
+- Composes existing skills by name (depend, not vendor); the portable
+  `simplify` is vendored, plus Superpowers as a fallback (see Credits).
 - Works across Claude Code, Codex, Cursor, Gemini, and opencode.
 
 ## Install
@@ -98,8 +98,8 @@ flowchart TD
     Loop --> P4["4 · FINISH<br/>verification-before-completion<br/>finishing-a-development-branch<br/>/opsx:archive + /opsx:sync"]
 ```
 
-Dependencies are composed by name (OpenSpec CLI, Superpowers); only `simplify`
-is vendored.
+Dependencies are composed by name (OpenSpec CLI, Superpowers); `simplify` is
+vendored, and Superpowers ships as a vendored fallback (see Credits).
 
 ## Test
 
