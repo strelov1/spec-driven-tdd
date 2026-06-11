@@ -8,7 +8,7 @@
 
 **Tech Stack:** Bash (hooks), JSON (manifests), Markdown (skills/docs), bash test scripts with a tiny assert harness; `python3` for JSON validation in tests.
 
-**Repo root:** `/Users/i_strelov/Projects/spec-driven-tdd` (already git-init'd; design committed under `docs/specs/`).
+**Repo root:** the repository root (already git-init'd; design committed under `docs/specs/`).
 
 ---
 
