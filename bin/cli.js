@@ -129,8 +129,8 @@ function superpowersPresent() {
   return false;
 }
 
-// Prints the dependency report and returns true when both prerequisites are present.
-function reportDeps() {
+// Prints the dependency report. `vendored` = the vendored fallback was deployed.
+function reportDeps(vendored = false) {
   const openspec = openspecPresent();
   const superpowers = superpowersPresent();
   console.log('\nDependencies:');
@@ -138,14 +138,20 @@ function reportDeps() {
     `  ${openspec ? 'OK' : '!!'} OpenSpec (npm: @fission-ai/openspec)` +
       (openspec ? '' : '  →  npm i -g @fission-ai/openspec')
   );
-  console.log(
-    `  ${superpowers ? 'OK' : '!!'} Superpowers (Claude Code plugin)` +
-      (superpowers ? '' : '  →  /plugin install superpowers@claude-plugins-official')
-  );
-  if (!openspec || !superpowers) {
+  if (superpowers) {
+    console.log('  OK Superpowers (Claude Code plugin)');
+  } else if (vendored) {
+    console.log('  OK Superpowers (vendored fallback — bundled skills)');
+  } else {
+    console.log(
+      '  !! Superpowers (Claude Code plugin)  →  /plugin install superpowers@claude-plugins-official'
+    );
+  }
+  const ok = openspec && (superpowers || vendored);
+  if (!ok) {
     console.log('\nThe orchestrator stops if a required dependency is missing — install the above first.');
   }
-  return openspec && superpowers;
+  return ok;
 }
 
 function printNextSteps(target, harness) {
@@ -194,9 +200,9 @@ function install(opts) {
     return 1;
   }
   const haveSuperpowers = superpowersPresent();
-  if (!haveSuperpowers) deployVendored(target);
+  const vendored = haveSuperpowers ? false : deployVendored(target);
   console.log(`Installed spec-driven-tdd → ${target}`);
-  if (!opts.skipDeps) reportDeps();
+  if (!opts.skipDeps) reportDeps(vendored);
   printNextSteps(target, opts.harness);
   return 0;
 }

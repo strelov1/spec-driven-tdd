@@ -123,6 +123,10 @@ fi
 doctor_out="$(node "$ROOT/bin/cli.js" doctor 2>&1)"
 assert_contains "$doctor_out" "Dependencies:" "doctor prints the dependency report"
 
+# when absent, the report shows the vendored fallback as satisfied, not "!!"
+fallback_out="$(SDT_ASSUME_SUPERPOWERS=0 node "$ROOT/bin/cli.js" install --dir "$(mktemp -d)" 2>&1)"
+assert_contains "$fallback_out" "vendored fallback" "report notes vendored Superpowers fallback when absent"
+
 # a non-claude harness gets its own next-steps line, not the claude one
 codex_out="$(node "$ROOT/bin/cli.js" install --dir "$(mktemp -d)" --harness codex 2>&1)"
 assert_contains "$codex_out" "codex: discovers skills under" "non-claude harness shows its own next steps"
