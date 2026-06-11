@@ -9,7 +9,7 @@ prerequisites.
 | Prerequisite | Channel | Command |
 |--------------|---------|---------|
 | **OpenSpec** | npm | pulled automatically as a dependency (or `npm i -g @fission-ai/openspec`) |
-| **Superpowers** | Claude Code marketplace (no npm package) | `/plugin install superpowers@claude-plugins-official` |
+| **Superpowers** | Claude Code marketplace, or **bundled fallback** | `/plugin install superpowers@claude-plugins-official` (Claude); auto-deployed from the pack on harnesses without the marketplace |
 
 OpenSpec is a real npm dependency of this package. Superpowers
 ([obra/superpowers](https://github.com/obra/superpowers)) is distributed **only**
@@ -32,6 +32,11 @@ npx spec-driven-tdd install
 This copies `skills/`, `hooks/`, the per-harness manifests, and the context
 files into `~/.claude/plugins/spec-driven-tdd`, keeps the hooks executable, and
 prints a dependency report (`OK` / `!!` per prerequisite).
+
+If Superpowers is not detected, the installer also deploys a vendored copy of
+the skills the orchestrator needs (flattened into `skills/`), so the lifecycle
+works without the marketplace. When Superpowers *is* detected, the vendored copy
+is skipped to avoid duplicating the marketplace version.
 
 Options:
 

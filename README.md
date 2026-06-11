@@ -107,6 +107,12 @@ is vendored.
 npm test   # or: bash tests/run-all.sh
 ```
 
+## Credits
+
+Bundles [Superpowers](https://github.com/obra/superpowers) skills (MIT, © 2025
+Jesse Vincent) as a vendored fallback for harnesses without the Claude Code
+marketplace. See `skills/vendor/superpowers/LICENSE`.
+
 ## License
 
 MIT
