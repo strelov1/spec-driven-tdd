@@ -73,6 +73,9 @@ function copyInto(target) {
     fs.rmSync(dest, { recursive: true, force: true });
     fs.cpSync(src, dest, { recursive: true, verbatimSymlinks: true });
   }
+  // skills/vendor is the source snapshot, not a discoverable skill set — never
+  // ship it nested. It is deployed flattened, conditionally, by deployVendored.
+  fs.rmSync(path.join(target, 'skills', 'vendor'), { recursive: true, force: true });
   for (const rel of EXECUTABLES) {
     if (process.platform === 'win32') continue; // chmod is a no-op/throws on Windows
     const p = path.join(target, rel);
@@ -108,6 +111,9 @@ function openspecPresent() {
 }
 
 function superpowersPresent() {
+  // Explicit override wins — lets users/tests force the decision.
+  if (process.env.SDT_ASSUME_SUPERPOWERS === '1') return true;
+  if (process.env.SDT_ASSUME_SUPERPOWERS === '0') return false;
   // Marketplace-installed; look for the plugin under the home config.
   const base = path.join(os.homedir(), '.claude', 'plugins');
   for (const sub of ['cache', 'data']) {
@@ -152,6 +158,24 @@ function printNextSteps(target, harness) {
   }
 }
 
+// When Superpowers is absent, deploy the vendored snapshot flattened into the
+// target's skills/ so the harness discovers e.g. skills/test-driven-development.
+// Returns true if anything was deployed.
+function deployVendored(target) {
+  const src = path.join(PACK_ROOT, 'skills', 'vendor', 'superpowers');
+  if (!fs.existsSync(src)) return false;
+  const skillsDir = path.join(target, 'skills');
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue; // skip LICENSE, NOTICE.md, .version
+    const dest = path.join(skillsDir, entry.name);
+    fs.rmSync(dest, { recursive: true, force: true });
+    fs.cpSync(path.join(src, entry.name), dest, { recursive: true });
+  }
+  // Ship the MIT license alongside the flattened skills, as the license requires.
+  fs.copyFileSync(path.join(src, 'LICENSE'), path.join(skillsDir, 'SUPERPOWERS-LICENSE'));
+  return true;
+}
+
 function install(opts) {
   const target = opts.dir || defaultTarget();
   if (opts.harness !== 'claude' && !opts.dir) {
@@ -166,6 +190,8 @@ function install(opts) {
     console.error(`Install failed: ${err.message}`);
     return 1;
   }
+  const haveSuperpowers = superpowersPresent();
+  if (!haveSuperpowers) deployVendored(target);
   console.log(`Installed spec-driven-tdd → ${target}`);
   if (!opts.skipDeps) reportDeps();
   printNextSteps(target, opts.harness);

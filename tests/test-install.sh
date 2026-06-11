@@ -52,6 +52,36 @@ else
   echo "  FAIL: stale payload survived re-install"; FAIL=$((FAIL + 1))
 fi
 
+# vendored fallback: when Superpowers is ABSENT, vendored skills deploy flattened
+ABSENT="$(mktemp -d)"
+SDT_ASSUME_SUPERPOWERS=0 node "$ROOT/bin/cli.js" install --dir "$ABSENT" --skip-deps >/dev/null 2>&1
+if [ -f "$ABSENT/skills/test-driven-development/SKILL.md" ]; then
+  echo "  ok: vendored skill deployed flattened when Superpowers absent"; PASS=$((PASS + 1))
+else
+  echo "  FAIL: vendored skill not deployed when Superpowers absent"; FAIL=$((FAIL + 1))
+fi
+# the nested vendor/ directory must NOT leak into the target
+if [ ! -e "$ABSENT/skills/vendor" ]; then
+  echo "  ok: nested skills/vendor not copied into target"; PASS=$((PASS + 1))
+else
+  echo "  FAIL: skills/vendor leaked into target"; FAIL=$((FAIL + 1))
+fi
+# attribution license rides along
+if [ -f "$ABSENT/skills/SUPERPOWERS-LICENSE" ]; then
+  echo "  ok: Superpowers LICENSE deployed with fallback"; PASS=$((PASS + 1))
+else
+  echo "  FAIL: Superpowers LICENSE missing from fallback"; FAIL=$((FAIL + 1))
+fi
+
+# vendored fallback: when Superpowers is PRESENT, vendored skills are skipped
+PRESENT="$(mktemp -d)"
+SDT_ASSUME_SUPERPOWERS=1 node "$ROOT/bin/cli.js" install --dir "$PRESENT" --skip-deps >/dev/null 2>&1
+if [ ! -e "$PRESENT/skills/test-driven-development" ]; then
+  echo "  ok: vendored skill skipped when Superpowers present"; PASS=$((PASS + 1))
+else
+  echo "  FAIL: vendored skill deployed despite Superpowers present"; FAIL=$((FAIL + 1))
+fi
+
 # --skip-deps suppresses the dependency report
 skip_out="$(node "$ROOT/bin/cli.js" install --dir "$(mktemp -d)" --skip-deps 2>&1)"
 if printf '%s' "$skip_out" | grep -q 'Dependencies:'; then
