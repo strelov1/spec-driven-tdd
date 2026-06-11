@@ -14,15 +14,24 @@ review, not at green tests.
 
 ## Install
 
-Via the [`skills`](https://github.com/vercel-labs/skills) CLI — works today,
-straight from GitHub, installs the three skills into your agent:
+### From skills.sh
+
+[skills.sh](https://skills.sh) is the registry for the
+[`skills`](https://github.com/vercel-labs/skills) CLI. One command installs the
+three skills into your agent — works today, pulled straight from GitHub:
 
 ```bash
 npx skills add strelov1/spec-driven-tdd
 ```
 
-Or the **full pack** (skills + SessionStart hook + per-harness manifests) via the
-npm installer:
+That is the install command whether you find the pack on skills.sh or here. Once
+skills.sh indexes the repo, it will also be browsable at its listing page; until
+then, the command above is the canonical way in.
+
+### Full pack (npm installer)
+
+For the **full pack** — skills + SessionStart hook + per-harness manifests — use
+the npm installer:
 
 ```bash
 npx spec-driven-tdd install
