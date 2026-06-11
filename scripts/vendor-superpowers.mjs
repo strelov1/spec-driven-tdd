@@ -45,9 +45,6 @@ function main() {
     let checkout;
     if (localSrc) {
       checkout = path.resolve(localSrc);
-      if (!fs.existsSync(path.join(checkout, 'skills'))) {
-        throw new Error(`SUPERPOWERS_SRC has no skills/ dir: ${checkout}`);
-      }
       console.log(`Using local source (SUPERPOWERS_SRC): ${checkout}`);
     } else {
       checkout = path.join(tmp, 'superpowers');
@@ -58,15 +55,30 @@ function main() {
       }
     }
 
+    // Pre-flight: validate the source is complete BEFORE wiping DEST, so a
+    // bad/incomplete source fails loudly while the committed snapshot stays
+    // intact. Covers both the clone and SUPERPOWERS_SRC paths.
+    const missing = [];
+    for (const skill of SKILLS) {
+      if (!fs.existsSync(path.join(checkout, 'skills', skill))) {
+        missing.push(`skills/${skill}`);
+      }
+    }
+    if (!fs.existsSync(path.join(checkout, 'LICENSE'))) {
+      missing.push('LICENSE');
+    }
+    if (missing.length) {
+      throw new Error(
+        `source is incomplete (${checkout}); missing: ${missing.join(', ')}`
+      );
+    }
+
     fs.rmSync(DEST, { recursive: true, force: true });
     fs.mkdirSync(DEST, { recursive: true });
 
     const dangling = [];
     for (const skill of SKILLS) {
       const src = path.join(checkout, 'skills', skill);
-      if (!fs.existsSync(src)) {
-        throw new Error(`upstream is missing skill: ${skill}`);
-      }
       fs.cpSync(src, path.join(DEST, skill), { recursive: true });
       // surface cross-references to skills we do NOT vendor
       const body = fs.readFileSync(path.join(src, 'SKILL.md'), 'utf8');
