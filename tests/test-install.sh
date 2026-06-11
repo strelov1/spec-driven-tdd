@@ -72,6 +72,13 @@ if [ -f "$ABSENT/skills/SUPERPOWERS-LICENSE" ]; then
 else
   echo "  FAIL: Superpowers LICENSE missing from fallback"; FAIL=$((FAIL + 1))
 fi
+# a vendored skill deploys as a WHOLE directory, not just its SKILL.md — a nested
+# file must survive the flatten (guards against a non-recursive copy regression)
+if [ -f "$ABSENT/skills/brainstorming/scripts/server.cjs" ]; then
+  echo "  ok: vendored skill deployed with its nested files intact"; PASS=$((PASS + 1))
+else
+  echo "  FAIL: vendored skill missing nested files after flatten"; FAIL=$((FAIL + 1))
+fi
 
 # vendored fallback: when Superpowers is PRESENT, vendored skills are skipped
 PRESENT="$(mktemp -d)"
