@@ -30,13 +30,22 @@ const PAYLOAD = [
 
 const EXECUTABLES = ['hooks/session-start', 'hooks/run-hook.cmd'];
 
+class UsageError extends Error {}
+
+function requireValue(value, flag) {
+  if (value === undefined || value.startsWith('-')) {
+    throw new UsageError(`${flag} requires a value`);
+  }
+  return value;
+}
+
 function parseArgs(argv) {
   const opts = { command: 'install', harness: 'claude', dir: null, skipDeps: false };
   const rest = [];
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
-    if (a === '--dir') opts.dir = argv[++i];
-    else if (a === '--harness') opts.harness = argv[++i];
+    if (a === '--dir') opts.dir = requireValue(argv[++i], '--dir');
+    else if (a === '--harness') opts.harness = requireValue(argv[++i], '--harness');
     else if (a === '--skip-deps') opts.skipDeps = true;
     else if (a === '-h' || a === '--help') opts.command = 'help';
     else rest.push(a);
@@ -55,11 +64,21 @@ function copyInto(target) {
   for (const item of PAYLOAD) {
     const src = path.join(PACK_ROOT, item);
     if (!fs.existsSync(src)) continue;
-    fs.cpSync(src, path.join(target, item), { recursive: true });
+    const dest = path.join(target, item);
+    // Replace, don't merge — so a payload item dropped in a newer version does
+    // not linger as a stale copy the harness keeps loading.
+    fs.rmSync(dest, { recursive: true, force: true });
+    fs.cpSync(src, dest, { recursive: true, verbatimSymlinks: true });
   }
   for (const rel of EXECUTABLES) {
+    if (process.platform === 'win32') continue; // chmod is a no-op/throws on Windows
     const p = path.join(target, rel);
-    if (fs.existsSync(p)) fs.chmodSync(p, 0o755);
+    if (!fs.existsSync(p)) continue;
+    try {
+      fs.chmodSync(p, 0o755);
+    } catch {
+      /* non-fatal on filesystems without POSIX permission bits */
+    }
   }
 }
 
@@ -76,7 +95,9 @@ function hasOnPath(bin) {
 
 function openspecPresent() {
   try {
-    require.resolve('@fission-ai/openspec/package.json', { paths: [PACK_ROOT] });
+    // Default resolution walks up node_modules from here, so it finds the
+    // dependency whether installed locally, via npx, or globally as a sibling.
+    require.resolve('@fission-ai/openspec/package.json');
     return true;
   } catch {
     return hasOnPath('openspec');
@@ -99,6 +120,7 @@ function superpowersPresent() {
   return false;
 }
 
+// Prints the dependency report and returns true when both prerequisites are present.
 function reportDeps() {
   const openspec = openspecPresent();
   const superpowers = superpowersPresent();
@@ -114,6 +136,7 @@ function reportDeps() {
   if (!openspec || !superpowers) {
     console.log('\nThe orchestrator stops if a required dependency is missing — install the above first.');
   }
+  return openspec && superpowers;
 }
 
 function printNextSteps(target, harness) {
@@ -128,7 +151,18 @@ function printNextSteps(target, harness) {
 
 function install(opts) {
   const target = opts.dir || defaultTarget();
-  copyInto(target);
+  if (opts.harness !== 'claude' && !opts.dir) {
+    console.warn(
+      `Note: the default target (${target}) is Claude-specific. ` +
+        `For ${opts.harness}, pass --dir <path> pointing at your agent's skills/plugins location.`
+    );
+  }
+  try {
+    copyInto(target);
+  } catch (err) {
+    console.error(`Install failed: ${err.message}`);
+    return 1;
+  }
   console.log(`Installed spec-driven-tdd → ${target}`);
   if (!opts.skipDeps) reportDeps();
   printNextSteps(target, opts.harness);
@@ -151,7 +185,16 @@ Options:
 }
 
 function main() {
-  const opts = parseArgs(process.argv.slice(2));
+  let opts;
+  try {
+    opts = parseArgs(process.argv.slice(2));
+  } catch (err) {
+    if (!(err instanceof UsageError)) throw err;
+    console.error(err.message);
+    help();
+    process.exit(1);
+  }
+
   let code = 0;
   switch (opts.command) {
     case 'install':
@@ -159,7 +202,7 @@ function main() {
       break;
     case 'doctor':
     case 'check':
-      reportDeps();
+      code = reportDeps() ? 0 : 1;
       break;
     case 'help':
       code = help();

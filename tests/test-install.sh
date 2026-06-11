@@ -42,4 +42,38 @@ fi
 assert_contains "$out" "OpenSpec" "report mentions OpenSpec dependency"
 assert_contains "$out" "[Ss]uperpowers" "report mentions Superpowers dependency"
 
+# re-install replaces the payload — a stale file from a previous install is gone
+mkdir -p "$TMP/skills/zzz-stale"
+echo stale > "$TMP/skills/zzz-stale/SKILL.md"
+node "$ROOT/bin/cli.js" install --dir "$TMP" >/dev/null 2>&1
+if [ ! -e "$TMP/skills/zzz-stale" ]; then
+  echo "  ok: re-install removes stale payload"; PASS=$((PASS + 1))
+else
+  echo "  FAIL: stale payload survived re-install"; FAIL=$((FAIL + 1))
+fi
+
+# --skip-deps suppresses the dependency report
+skip_out="$(node "$ROOT/bin/cli.js" install --dir "$(mktemp -d)" --skip-deps 2>&1)"
+if printf '%s' "$skip_out" | grep -q 'Dependencies:'; then
+  echo "  FAIL: --skip-deps still printed the dependency report"; FAIL=$((FAIL + 1))
+else
+  echo "  ok: --skip-deps suppresses the dependency report"; PASS=$((PASS + 1))
+fi
+
+# unknown command exits non-zero
+node "$ROOT/bin/cli.js" bogus-cmd >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo "  ok: unknown command exits non-zero"; PASS=$((PASS + 1))
+else
+  echo "  FAIL: unknown command exited 0"; FAIL=$((FAIL + 1))
+fi
+
+# --dir without a value is a usage error, not a silent default
+node "$ROOT/bin/cli.js" install --dir >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo "  ok: --dir without a value errors"; PASS=$((PASS + 1))
+else
+  echo "  FAIL: --dir without a value did not error"; FAIL=$((FAIL + 1))
+fi
+
 finish
