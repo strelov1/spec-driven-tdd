@@ -7,7 +7,7 @@ ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 echo "Test: npx installer stages the pack and reports dependencies"
 
 TMP="$(mktemp -d)"
-trap 'rm -rf "$TMP"' EXIT
+trap 'rm -rf "$TMP" "${ABSENT:-}" "${PRESENT:-}"' EXIT
 
 out="$(node "$ROOT/bin/cli.js" install --dir "$TMP" 2>&1)"
 rc=$?
@@ -52,6 +52,48 @@ else
   echo "  FAIL: stale payload survived re-install"; FAIL=$((FAIL + 1))
 fi
 
+# vendored fallback: when Superpowers is ABSENT, vendored skills deploy flattened
+ABSENT="$(mktemp -d)"
+SDT_ASSUME_SUPERPOWERS=0 node "$ROOT/bin/cli.js" install --dir "$ABSENT" --skip-deps >/dev/null 2>&1
+if [ -f "$ABSENT/skills/test-driven-development/SKILL.md" ]; then
+  echo "  ok: vendored skill deployed flattened when Superpowers absent"; PASS=$((PASS + 1))
+else
+  echo "  FAIL: vendored skill not deployed when Superpowers absent"; FAIL=$((FAIL + 1))
+fi
+# the nested vendor/ directory must NOT leak into the target
+if [ ! -e "$ABSENT/skills/vendor" ]; then
+  echo "  ok: nested skills/vendor not copied into target"; PASS=$((PASS + 1))
+else
+  echo "  FAIL: skills/vendor leaked into target"; FAIL=$((FAIL + 1))
+fi
+# attribution license rides along
+if [ -f "$ABSENT/skills/SUPERPOWERS-LICENSE" ]; then
+  echo "  ok: Superpowers LICENSE deployed with fallback"; PASS=$((PASS + 1))
+else
+  echo "  FAIL: Superpowers LICENSE missing from fallback"; FAIL=$((FAIL + 1))
+fi
+# a vendored skill deploys as a WHOLE directory, not just its SKILL.md — a nested
+# file must survive the flatten (guards against a non-recursive copy regression)
+if [ -f "$ABSENT/skills/brainstorming/scripts/server.cjs" ]; then
+  echo "  ok: vendored skill deployed with its nested files intact"; PASS=$((PASS + 1))
+else
+  echo "  FAIL: vendored skill missing nested files after flatten"; FAIL=$((FAIL + 1))
+fi
+
+# vendored fallback: when Superpowers is PRESENT, vendored skills are skipped
+PRESENT="$(mktemp -d)"
+SDT_ASSUME_SUPERPOWERS=1 node "$ROOT/bin/cli.js" install --dir "$PRESENT" --skip-deps >/dev/null 2>&1
+if [ ! -e "$PRESENT/skills/test-driven-development" ]; then
+  echo "  ok: vendored skill skipped when Superpowers present"; PASS=$((PASS + 1))
+else
+  echo "  FAIL: vendored skill deployed despite Superpowers present"; FAIL=$((FAIL + 1))
+fi
+if [ ! -e "$PRESENT/skills/SUPERPOWERS-LICENSE" ]; then
+  echo "  ok: no Superpowers LICENSE when present"; PASS=$((PASS + 1))
+else
+  echo "  FAIL: SUPERPOWERS-LICENSE deployed despite Superpowers present"; FAIL=$((FAIL + 1))
+fi
+
 # --skip-deps suppresses the dependency report
 skip_out="$(node "$ROOT/bin/cli.js" install --dir "$(mktemp -d)" --skip-deps 2>&1)"
 if printf '%s' "$skip_out" | grep -q 'Dependencies:'; then
@@ -87,6 +129,10 @@ fi
 # the doctor command prints the dependency report
 doctor_out="$(node "$ROOT/bin/cli.js" doctor 2>&1)"
 assert_contains "$doctor_out" "Dependencies:" "doctor prints the dependency report"
+
+# when absent, the report shows the vendored fallback as satisfied, not "!!"
+fallback_out="$(SDT_ASSUME_SUPERPOWERS=0 node "$ROOT/bin/cli.js" install --dir "$(mktemp -d)" 2>&1)"
+assert_contains "$fallback_out" "vendored fallback" "report notes vendored Superpowers fallback when absent"
 
 # a non-claude harness gets its own next-steps line, not the claude one
 codex_out="$(node "$ROOT/bin/cli.js" install --dir "$(mktemp -d)" --harness codex 2>&1)"

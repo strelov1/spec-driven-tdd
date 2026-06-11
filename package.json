@@ -12,6 +12,7 @@
   "engines": { "node": ">=18" },
   "files": [
     "bin/",
+    "scripts/",
     "skills/",
     "hooks/",
     ".claude-plugin/",
@@ -27,7 +28,8 @@
     "docs/supported-tools.md"
   ],
   "scripts": {
-    "test": "bash tests/run-all.sh"
+    "test": "bash tests/run-all.sh",
+    "vendor:superpowers": "node scripts/vendor-superpowers.mjs"
   },
   "dependencies": {
     "@fission-ai/openspec": "^1.4.1"
