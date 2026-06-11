@@ -7,7 +7,7 @@ ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 echo "Test: npx installer stages the pack and reports dependencies"
 
 TMP="$(mktemp -d)"
-trap 'rm -rf "$TMP"' EXIT
+trap 'rm -rf "$TMP" "${ABSENT:-}" "${PRESENT:-}"' EXIT
 
 out="$(node "$ROOT/bin/cli.js" install --dir "$TMP" 2>&1)"
 rc=$?
@@ -80,6 +80,11 @@ if [ ! -e "$PRESENT/skills/test-driven-development" ]; then
   echo "  ok: vendored skill skipped when Superpowers present"; PASS=$((PASS + 1))
 else
   echo "  FAIL: vendored skill deployed despite Superpowers present"; FAIL=$((FAIL + 1))
+fi
+if [ ! -e "$PRESENT/skills/SUPERPOWERS-LICENSE" ]; then
+  echo "  ok: no Superpowers LICENSE when present"; PASS=$((PASS + 1))
+else
+  echo "  FAIL: SUPERPOWERS-LICENSE deployed despite Superpowers present"; FAIL=$((FAIL + 1))
 fi
 
 # --skip-deps suppresses the dependency report

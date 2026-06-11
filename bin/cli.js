@@ -172,7 +172,10 @@ function deployVendored(target) {
     fs.cpSync(path.join(src, entry.name), dest, { recursive: true });
   }
   // Ship the MIT license alongside the flattened skills, as the license requires.
-  fs.copyFileSync(path.join(src, 'LICENSE'), path.join(skillsDir, 'SUPERPOWERS-LICENSE'));
+  const lic = path.join(src, 'LICENSE');
+  if (fs.existsSync(lic)) {
+    fs.copyFileSync(lic, path.join(skillsDir, 'SUPERPOWERS-LICENSE'));
+  }
   return true;
 }
 
