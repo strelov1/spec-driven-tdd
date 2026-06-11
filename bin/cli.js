@@ -51,6 +51,9 @@ function parseArgs(argv) {
     else rest.push(a);
   }
   if (rest[0]) opts.command = rest[0];
+  if (rest.length > 1) {
+    throw new UsageError(`unexpected argument: ${rest[1]}`);
+  }
   return opts;
 }
 

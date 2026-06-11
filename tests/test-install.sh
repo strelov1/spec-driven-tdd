@@ -76,4 +76,20 @@ else
   echo "  FAIL: --dir without a value did not error"; FAIL=$((FAIL + 1))
 fi
 
+# an unexpected extra positional argument is a usage error
+node "$ROOT/bin/cli.js" install extra-arg >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo "  ok: extra positional argument errors"; PASS=$((PASS + 1))
+else
+  echo "  FAIL: extra positional argument did not error"; FAIL=$((FAIL + 1))
+fi
+
+# the doctor command prints the dependency report
+doctor_out="$(node "$ROOT/bin/cli.js" doctor 2>&1)"
+assert_contains "$doctor_out" "Dependencies:" "doctor prints the dependency report"
+
+# a non-claude harness gets its own next-steps line, not the claude one
+codex_out="$(node "$ROOT/bin/cli.js" install --dir "$(mktemp -d)" --harness codex 2>&1)"
+assert_contains "$codex_out" "codex: discovers skills under" "non-claude harness shows its own next steps"
+
 finish
