@@ -5,7 +5,7 @@ source "$SCRIPT_DIR/test-helpers.sh"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Skills authored by this pack.
-PACK_SKILLS=(using-spec-driven-tdd spec-driven-tdd simplify)
+PACK_SKILLS=(using-spec-driven-tdd spec-driven-tdd simplify spike)
 # Superpowers skills vendored into this pack (flattened to top-level skills/).
 VENDORED_SKILLS=(
   test-driven-development systematic-debugging requesting-code-review

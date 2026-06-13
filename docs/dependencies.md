@@ -5,6 +5,7 @@
 | [OpenSpec](https://www.npmjs.com/package/@fission-ai/openspec) CLI + initialized project | Yes (npm dep) | `/opsx:*`, change/task tracking |
 | [Superpowers](https://github.com/obra/superpowers) skills | Bundled (vendored, pinned 5.1.0) | TDD, code review, debugging, worktrees, finishing, brainstorming |
 | `simplify` skill | Bundled | quality pass (ships in this pack) |
+| `spike` skill | Bundled | optional, risk-gated feasibility check in the Plan phase (ships in this pack) |
 | Claude Code `/code-review` | Optional | extra built-in bug pass (CC only) |
 
 ## Degradation
