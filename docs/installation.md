@@ -1,25 +1,23 @@
 # Installation
 
 The pack ships as an npm package with an installer CLI. The installer stages the
-skill-pack into a directory your harness reads and reports the two runtime
-prerequisites.
+skill-pack into a directory your harness reads and reports the one runtime
+prerequisite.
 
-## 1. Install the prerequisites
+## 1. Install the prerequisite
 
 | Prerequisite | Channel | Command |
 |--------------|---------|---------|
 | **OpenSpec** | npm | pulled automatically as a dependency (or `npm i -g @fission-ai/openspec`) |
-| **Superpowers** | Claude Code marketplace, or **bundled fallback** | `/plugin install superpowers@claude-plugins-official` (Claude); auto-deployed from the pack on harnesses without the marketplace |
 
-OpenSpec is a real npm dependency of this package. Superpowers
-([obra/superpowers](https://github.com/obra/superpowers)) is distributed **only**
-through the Claude Code plugin marketplace — there is no npm package for it. Use
-the official marketplace command above, or obra's own marketplace:
+OpenSpec is the only external prerequisite — a real npm dependency of this
+package. The **Superpowers** skills
+([obra/superpowers](https://github.com/obra/superpowers), MIT) are vendored into
+the pack as top-level skills, so they install with everything else and need no
+marketplace step.
 
-```text
-/plugin marketplace add obra/superpowers-marketplace
-/plugin install superpowers@superpowers-marketplace
-```
+> If you already run the Superpowers marketplace plugin, skip the bundled skills
+> whose description is prefixed `[Superpowers …]` — they duplicate the plugin.
 
 See [dependencies.md](dependencies.md) for what each provides.
 
@@ -29,14 +27,15 @@ See [dependencies.md](dependencies.md) for what each provides.
 npx spec-driven-tdd install
 ```
 
-This copies `skills/`, `hooks/`, the per-harness manifests, and the context
-files into `~/.claude/plugins/spec-driven-tdd`, keeps the hooks executable, and
-prints a dependency report (`OK` / `!!` per prerequisite).
+This copies `skills/` (the pack's own skills plus the vendored Superpowers set),
+`hooks/`, the per-harness manifests, and the context files into
+`~/.claude/plugins/spec-driven-tdd`, keeps the hooks executable, and prints a
+dependency report (`OK` / `!!` per prerequisite).
 
-If Superpowers is not detected, the installer also deploys a vendored copy of
-the skills the orchestrator needs (flattened into `skills/`), so the lifecycle
-works without the marketplace. When Superpowers *is* detected, the vendored copy
-is skipped to avoid duplicating the marketplace version.
+The Superpowers skills are bundled as top-level skills, so the lifecycle works on
+every harness without a marketplace step. If you also run the Superpowers
+marketplace plugin, the bundled copies (description prefix `[Superpowers …]`)
+duplicate it — remove either side to avoid two copies.
 
 Options:
 

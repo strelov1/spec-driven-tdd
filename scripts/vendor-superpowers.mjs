@@ -2,8 +2,9 @@
 // Reproducible sync of the Superpowers skills this pack vendors.
 // Clones the pinned upstream tag into a temp dir and copies only the skills
 // the orchestrator references, plus the MIT LICENSE the license requires us to
-// ship. Output is committed under skills/vendor/superpowers/ and distributed
-// via npm — NOT a submodule (npx install does not fetch submodules).
+// ship. Output is committed as top-level skills/<name>/ (flattened so a registry
+// discovers them) and distributed via npm — NOT a submodule (npx install does
+// not fetch submodules).
 //
 // Offline fallback: set SUPERPOWERS_SRC=<path> to a local Superpowers checkout
 // (a dir containing skills/ and LICENSE). When set, the script copies from that
@@ -30,12 +31,24 @@ const SKILLS = [
 ];
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const DEST = path.join(HERE, '..', 'skills', 'vendor', 'superpowers');
+// Vendored skills are flattened into the pack's top-level skills/ so a registry
+// (e.g. skills.sh) discovers them. We touch only the SKILLS dirs below plus the
+// two attribution files — never the whole skills/ directory.
+const SKILLS_DIR = path.join(HERE, '..', 'skills');
+const PREFIX = `[Superpowers ${VERSION}, MIT] `;
 
 function clone(tag, into) {
   execFileSync('git', ['clone', '--depth', '1', '--branch', tag, REPO, into], {
     stdio: 'ignore',
   });
+}
+
+// Prepend the provenance prefix to a vendored skill's `description` so the
+// third-party origin stays visible in the picker and survives regeneration.
+function applyPrefix(skillMd) {
+  const body = fs.readFileSync(skillMd, 'utf8');
+  if (/^description:\s*\[Superpowers/m.test(body)) return;
+  fs.writeFileSync(skillMd, body.replace(/^description:\s*(.*)$/m, `description: ${PREFIX}$1`));
 }
 
 function main() {
@@ -73,13 +86,15 @@ function main() {
       );
     }
 
-    fs.rmSync(DEST, { recursive: true, force: true });
-    fs.mkdirSync(DEST, { recursive: true });
+    fs.mkdirSync(SKILLS_DIR, { recursive: true });
 
     const dangling = [];
     for (const skill of SKILLS) {
       const src = path.join(checkout, 'skills', skill);
-      fs.cpSync(src, path.join(DEST, skill), { recursive: true });
+      const dest = path.join(SKILLS_DIR, skill);
+      fs.rmSync(dest, { recursive: true, force: true });
+      fs.cpSync(src, dest, { recursive: true });
+      applyPrefix(path.join(dest, 'SKILL.md'));
       // surface cross-references to skills we do NOT vendor
       const body = fs.readFileSync(path.join(src, 'SKILL.md'), 'utf8');
       for (const m of body.matchAll(/superpowers:([a-z-]+)/g)) {
@@ -87,14 +102,14 @@ function main() {
       }
     }
 
-    fs.copyFileSync(path.join(checkout, 'LICENSE'), path.join(DEST, 'LICENSE'));
-    fs.writeFileSync(path.join(DEST, '.version'), `${VERSION}\n`);
+    fs.copyFileSync(path.join(checkout, 'LICENSE'), path.join(SKILLS_DIR, 'SUPERPOWERS-LICENSE'));
     fs.writeFileSync(
-      path.join(DEST, 'NOTICE.md'),
+      path.join(SKILLS_DIR, 'SUPERPOWERS-NOTICE.md'),
       [
         '# Vendored Superpowers skills',
         '',
-        `Source: ${REPO} @ ${VERSION} (MIT, (c) 2025 Jesse Vincent — see LICENSE).`,
+        `Source: ${REPO} @ ${VERSION} (MIT, (c) 2025 Jesse Vincent — see SUPERPOWERS-LICENSE).`,
+        `Each vendored skill's description is prefixed \`${PREFIX.trim()}\` to mark its origin.`,
         'Regenerate with: `npm run vendor:superpowers`.',
         '',
         'Cross-references to skills NOT vendored here (degrade gracefully):',
@@ -102,7 +117,7 @@ function main() {
         '',
       ].join('\n')
     );
-    console.log(`Vendored ${SKILLS.length} skills @ ${VERSION} -> ${DEST}`);
+    console.log(`Vendored ${SKILLS.length} skills @ ${VERSION} -> ${SKILLS_DIR}`);
     if (dangling.length) console.log(`Dangling refs noted: ${dangling.join(', ')}`);
   } finally {
     if (tmp) fs.rmSync(tmp, { recursive: true, force: true });

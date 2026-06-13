@@ -8,8 +8,8 @@ Plan in OpenSpec → isolate in a worktree → implement each task via
 TDD → simplify → review → finish and archive. A task is done only after a clean
 review, not at green tests.
 
-- Composes existing skills by name (depend, not vendor); the portable
-  `simplify` is vendored, plus Superpowers as a fallback (see Credits).
+- Bundles every skill it needs as a first-class top-level skill: the portable
+  `simplify` plus the vendored Superpowers set (see Credits).
 - Works across Claude Code, Codex, Cursor, Gemini, and opencode.
 
 ## Install
@@ -17,8 +17,9 @@ review, not at green tests.
 ### From skills.sh
 
 [skills.sh](https://skills.sh) is the registry for the
-[`skills`](https://github.com/vercel-labs/skills) CLI. One command installs the
-three skills into your agent — works today, pulled straight from GitHub:
+[`skills`](https://github.com/vercel-labs/skills) CLI. One command installs every
+bundled skill into your agent — the pack's own skills plus the vendored
+Superpowers set — pulled straight from GitHub:
 
 ```bash
 npx skills add strelov1/spec-driven-tdd
@@ -27,6 +28,10 @@ npx skills add strelov1/spec-driven-tdd
 That is the install command whether you find the pack on skills.sh or here. Once
 skills.sh indexes the repo, it will also be browsable at its listing page; until
 then, the command above is the canonical way in.
+
+> Already have the Superpowers marketplace plugin? Skip the skills whose
+> description is prefixed `[Superpowers …]` in the picker — they would duplicate
+> the plugin's own skills.
 
 ### Full pack (npm installer)
 
@@ -37,10 +42,10 @@ the npm installer:
 npx spec-driven-tdd install
 ```
 
-Requires **OpenSpec** (npm dependency, pulled automatically) and
-**[Superpowers](https://github.com/obra/superpowers)** (Claude Code marketplace,
-no npm package — `/plugin install superpowers@claude-plugins-official`). Full
-steps in [docs/installation.md](docs/installation.md); what each provides is in
+Requires only **OpenSpec** (npm dependency, pulled automatically). The
+**[Superpowers](https://github.com/obra/superpowers)** skills are bundled with the
+pack, so no separate install is needed. Full steps in
+[docs/installation.md](docs/installation.md); what each provides is in
 [docs/dependencies.md](docs/dependencies.md).
 
 ## Workflow
@@ -107,8 +112,8 @@ flowchart TD
     Loop --> P4["4 · FINISH<br/>verification-before-completion<br/>finishing-a-development-branch<br/>/opsx:archive + /opsx:sync"]
 ```
 
-Dependencies are composed by name (OpenSpec CLI, Superpowers); `simplify` is
-vendored, and Superpowers ships as a vendored fallback (see Credits).
+OpenSpec is the only external prerequisite; the Superpowers skills and `simplify`
+are bundled with the pack as top-level skills (see Credits).
 
 ## Test
 
@@ -119,8 +124,9 @@ npm test   # or: bash tests/run-all.sh
 ## Credits
 
 Bundles [Superpowers](https://github.com/obra/superpowers) skills (MIT, © 2025
-Jesse Vincent) as a vendored fallback for harnesses without the Claude Code
-marketplace. See `skills/vendor/superpowers/LICENSE`.
+Jesse Vincent) as first-class top-level skills, each marked with a
+`[Superpowers 5.1.0, MIT]` description prefix. See `skills/SUPERPOWERS-LICENSE`
+and `skills/SUPERPOWERS-NOTICE.md`; refresh with `npm run vendor:superpowers`.
 
 ## License
 
