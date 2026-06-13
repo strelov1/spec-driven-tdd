@@ -14,8 +14,6 @@ review, not at green tests.
 
 ## Install
 
-### From skills.sh
-
 [skills.sh](https://skills.sh) is the registry for the
 [`skills`](https://github.com/vercel-labs/skills) CLI. One command installs every
 bundled skill into your agent — the pack's own skills plus the vendored
@@ -25,28 +23,18 @@ Superpowers set — pulled straight from GitHub:
 npx skills add strelov1/spec-driven-tdd
 ```
 
-That is the install command whether you find the pack on skills.sh or here. Once
-skills.sh indexes the repo, it will also be browsable at its listing page; until
-then, the command above is the canonical way in.
+Once skills.sh indexes the repo it will also be browsable at its listing page;
+until then, the command above is the canonical way in.
+
+At runtime the workflow needs **OpenSpec** for the `/opsx:*` commands — install it
+once with `npm i -g @fission-ai/openspec`. The
+**[Superpowers](https://github.com/obra/superpowers)** skills are bundled, so they
+need no separate install. What each provides is in
+[docs/dependencies.md](docs/dependencies.md).
 
 > Already have the Superpowers marketplace plugin? Skip the skills whose
 > description is prefixed `[Superpowers …]` in the picker — they would duplicate
 > the plugin's own skills.
-
-### Full pack (npm installer)
-
-For the **full pack** — skills + SessionStart hook + per-harness manifests — use
-the npm installer:
-
-```bash
-npx spec-driven-tdd install
-```
-
-Requires only **OpenSpec** (npm dependency, pulled automatically). The
-**[Superpowers](https://github.com/obra/superpowers)** skills are bundled with the
-pack, so no separate install is needed. Full steps in
-[docs/installation.md](docs/installation.md); what each provides is in
-[docs/dependencies.md](docs/dependencies.md).
 
 ## Workflow
 
