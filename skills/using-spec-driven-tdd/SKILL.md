@@ -1,6 +1,6 @@
 ---
 name: using-spec-driven-tdd
-description: Use when implementing an OpenSpec change - establishes the spec-driven-tdd delivery discipline and when to invoke the workflow
+description: Entry point for the spec-driven-tdd workflow - invoke at the START of an OpenSpec change to load the delivery discipline and hand off to the spec-driven-tdd orchestrator before writing code
 ---
 
 # Using spec-driven-tdd
