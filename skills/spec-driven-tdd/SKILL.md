@@ -21,6 +21,14 @@ skip a step. `/code-review` is a Claude-Code-only optional enhancement.
 
 ### 1. Plan (OpenSpec)
 
+**Optional — feasibility spike (risk-gated).** If the work carries unproven
+technical risk (an untested approach, an external API, an open "is this
+possible?"), invoke the `spike` skill *before* proposing. Skip it when
+feasibility is already clear. Act on its verdict: **VALIDATED** → proceed to
+propose; **PARTIAL** → narrow scope to the viable subset, then propose;
+**INVALIDATED** → stop, do not create the change (tell the user why). Spike code
+is throwaway and never enters the change's worktree.
+
 If no change exists for the work, run `/opsx:propose` (it uses `brainstorming`
 to shape scope, then writes proposal/design/tasks). OpenSpec is the single
 source of truth for scope and the task list. Do not invent tasks outside it.

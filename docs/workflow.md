@@ -4,7 +4,7 @@ The lifecycle the `spec-driven-tdd` skill enforces.
 
 | Phase | Tool | Rule |
 |-------|------|------|
-| Plan | `/opsx:propose` (+ `brainstorming`) | OpenSpec owns scope + task list |
+| Plan | `spike` (optional, risk-gated) → `/opsx:propose` (+ `brainstorming`) | OpenSpec owns scope + task list; an INVALIDATED spike stops the change before it starts |
 | Isolate | `using-git-worktrees` | one change → one worktree |
 | Implement (per task) | `test-driven-development` (→ `systematic-debugging` on unexpected failure) → `simplify` → `requesting-code-review` + `receiving-code-review` | RED before code; `[x]` only after clean review |
 | Finish | `verification-before-completion` → `finishing-a-development-branch` → `/opsx:archive` + `/opsx:sync` | tracking closes in OpenSpec |
