@@ -43,12 +43,38 @@ function clone(tag, into) {
   });
 }
 
+// Read a single-line YAML scalar as its plain string value. Upstream mixes
+// plain and double-quoted descriptions, so both must round-trip.
+function unquoteScalar(value) {
+  if (value.length >= 2 && value.startsWith('"') && value.endsWith('"')) {
+    return JSON.parse(value);
+  }
+  if (value.length >= 2 && value.startsWith("'") && value.endsWith("'")) {
+    return value.slice(1, -1).replaceAll("''", "'");
+  }
+  return value;
+}
+
 // Prepend the provenance prefix to a vendored skill's `description` so the
 // third-party origin stays visible in the picker and survives regeneration.
+// The result is always single-quoted: the prefix opens with `[`, which YAML
+// would otherwise read as a flow sequence and reject the whole frontmatter,
+// dropping the skill from every install.
 function applyPrefix(skillMd) {
   const body = fs.readFileSync(skillMd, 'utf8');
-  if (/^description:\s*\[Superpowers/m.test(body)) return;
-  fs.writeFileSync(skillMd, body.replace(/^description:\s*(.*)$/m, `description: ${PREFIX}$1`));
+  const match = body.match(/^description:[ \t]*(.*)$/m);
+  if (!match) throw new Error(`no description in ${skillMd}`);
+  const raw = match[1].trim();
+  if (raw.startsWith('|') || raw.startsWith('>')) {
+    throw new Error(`multi-line description in ${skillMd} is unsupported`);
+  }
+  const description = unquoteScalar(raw);
+  if (description.startsWith(PREFIX.trim())) return;
+  const quoted = `'${(PREFIX + description).replaceAll("'", "''")}'`;
+  fs.writeFileSync(
+    skillMd,
+    body.replace(/^description:[ \t]*.*$/m, () => `description: ${quoted}`)
+  );
 }
 
 function main() {

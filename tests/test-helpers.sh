@@ -33,6 +33,16 @@ assert_json_path() {
   fi
 }
 
+assert_frontmatter_valid() {
+  # assert_frontmatter_valid <path-to-SKILL.md> <msg>
+  local file="$1" msg="$2" err
+  if err="$(python3 "$(dirname "${BASH_SOURCE[0]}")/check-frontmatter.py" "$file" 2>&1)"; then
+    echo "  ok: $msg"; PASS=$((PASS + 1))
+  else
+    echo "  FAIL: $msg — $err"; FAIL=$((FAIL + 1))
+  fi
+}
+
 finish() {
   echo ""
   echo "RESULT: $PASS passed, $FAIL failed"

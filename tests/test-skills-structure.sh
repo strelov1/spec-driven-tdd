@@ -36,12 +36,15 @@ fi
 
 echo "Test: vendored skills carry the Superpowers provenance prefix"
 for skill in "${VENDORED_SKILLS[@]}"; do
-  desc=$(grep -m1 '^description: ' "$ROOT/skills/$skill/SKILL.md" 2>/dev/null || true)
-  if printf '%s' "$desc" | grep -qF "description: $PREFIX"; then
-    echo "  ok: $skill description carries provenance prefix"; PASS=$((PASS + 1))
-  else
-    echo "  FAIL: $skill description missing prefix '$PREFIX'"; FAIL=$((FAIL + 1))
-  fi
+  # Assert the parsed description, not the raw line: quoting style is the
+  # generator's business, the prefix is the contract.
+  desc=$(python3 "$SCRIPT_DIR/check-frontmatter.py" "$ROOT/skills/$skill/SKILL.md" 2>/dev/null || true)
+  case "$desc" in
+    "$PREFIX"*)
+      echo "  ok: $skill description carries provenance prefix"; PASS=$((PASS + 1)) ;;
+    *)
+      echo "  FAIL: $skill description missing prefix '$PREFIX'"; FAIL=$((FAIL + 1)) ;;
+  esac
 done
 
 echo "Test: Superpowers MIT license is committed in the tree"

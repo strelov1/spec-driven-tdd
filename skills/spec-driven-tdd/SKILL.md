@@ -1,6 +1,6 @@
 ---
 name: spec-driven-tdd
-description: The spec-driven-tdd delivery workflow (orchestrator) - runs the full lifecycle for an OpenSpec change: OpenSpec planning/tracking + Superpowers TDD, simplify, and code review. Invoked by using-spec-driven-tdd; run it once implementation starts
+description: 'The spec-driven-tdd delivery workflow (orchestrator) - runs the full lifecycle for an OpenSpec change: OpenSpec planning/tracking + Superpowers TDD, simplify, and code review. Invoked by using-spec-driven-tdd; run it once implementation starts'
 ---
 
 # spec-driven-tdd
