@@ -85,6 +85,60 @@ function copyInto(target) {
   }
 }
 
+// lstat (not existsSync) so a dangling symlink still counts as "exists" —
+// existsSync follows symlinks and reports false for a broken one.
+function pathExists(p) {
+  try {
+    fs.lstatSync(p);
+    return true;
+  } catch (err) {
+    if (err.code === 'ENOENT') return false;
+    throw err;
+  }
+}
+
+function agentsTemplate(target) {
+  const name = path.basename(target);
+  return (
+    `# ${name}\n\n` +
+    'This file is the shared agent context for AGENTS.md-compatible harnesses. ' +
+    '`CLAUDE.md` and `GEMINI.md` in this directory are symlinks to this file, ' +
+    'so every harness reads the same content.\n'
+  );
+}
+
+// Bootstraps a *consuming* project's own AGENTS.md/CLAUDE.md/GEMINI.md trio —
+// unrelated to installing this pack. Never overwrites an existing file or
+// symlink; each of the three is independently create-or-skip.
+function initContext(opts) {
+  const target = path.resolve(opts.dir || process.cwd());
+  try {
+    fs.mkdirSync(target, { recursive: true });
+
+    const agentsPath = path.join(target, 'AGENTS.md');
+    if (pathExists(agentsPath)) {
+      console.log('skipped: AGENTS.md already exists');
+    } else {
+      fs.writeFileSync(agentsPath, agentsTemplate(target));
+      console.log('created: AGENTS.md');
+    }
+
+    for (const name of ['CLAUDE.md', 'GEMINI.md']) {
+      const linkPath = path.join(target, name);
+      if (pathExists(linkPath)) {
+        console.log(`skipped: ${name} already exists`);
+      } else {
+        fs.symlinkSync('AGENTS.md', linkPath);
+        console.log(`created: ${name} -> AGENTS.md`);
+      }
+    }
+  } catch (err) {
+    console.error(`init-context failed: ${err.message}`);
+    return 1;
+  }
+  return 0;
+}
+
 function hasOnPath(bin) {
   try {
     execFileSync(process.platform === 'win32' ? 'where' : 'which', [bin], {
@@ -158,12 +212,17 @@ function help() {
 
 Usage:
   npx spec-driven-tdd install [--harness <name>] [--dir <path>] [--skip-deps]
+  npx spec-driven-tdd init-context [--dir <path>]
   npx spec-driven-tdd doctor
 
 Options:
   --harness   claude | cursor | codex | gemini | opencode  (default: claude)
-  --dir       target directory (default: ~/.claude/plugins/spec-driven-tdd)
+  --dir       target directory (default: ~/.claude/plugins/spec-driven-tdd for
+              install; current directory for init-context)
   --skip-deps skip the OpenSpec / Superpowers dependency report
+
+init-context bootstraps a project's own AGENTS.md, symlinking CLAUDE.md and
+GEMINI.md to it. It never overwrites an existing file or symlink.
 `);
   return 0;
 }
@@ -183,6 +242,9 @@ function main() {
   switch (opts.command) {
     case 'install':
       code = install(opts);
+      break;
+    case 'init-context':
+      code = initContext(opts);
       break;
     case 'doctor':
     case 'check':
