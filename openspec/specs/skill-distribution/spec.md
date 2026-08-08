@@ -29,7 +29,7 @@ and version, and the MIT license SHALL be committed in the tree.
 
 #### Scenario: Description carries the provenance prefix
 - **WHEN** a vendored Superpowers skill's `SKILL.md` frontmatter is read
-- **THEN** its `description` begins with `[Superpowers 5.1.0, MIT]`
+- **THEN** its `description` begins with `[Superpowers 6.2.0, MIT]`
 
 #### Scenario: License is committed in the tree
 - **WHEN** the repository tree is inspected
