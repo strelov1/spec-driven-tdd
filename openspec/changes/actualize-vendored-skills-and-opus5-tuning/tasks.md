@@ -24,6 +24,6 @@
 
 ## 4. Finish
 
-- [ ] 4.1 Run `verification-before-completion`: full `npm test` green, manually run `init-context` against a scratch directory to confirm behavior end to end
+- [x] 4.1 Run `verification-before-completion`: full `npm test` green (135/135, exit 0), manually run `init-context` against a scratch directory to confirm behavior end to end
 - [ ] 4.2 Finish the development branch and integrate the worktree
 - [ ] 4.3 `/opsx:archive` then `/opsx:sync`
