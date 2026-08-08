@@ -8,6 +8,8 @@ Plan in OpenSpec → isolate in a worktree → implement each task via
 TDD → simplify → review → finish and archive. A task is done only after a clean
 review, not at green tests.
 
+![Integrated agent-assisted development workflow](docs/assets/workflow-overview.png)
+
 - Bundles every skill it needs as a first-class top-level skill: the portable
   `simplify` plus the vendored Superpowers set (see Credits).
 - Works across Claude Code, Codex, Cursor, Gemini, and opencode.
