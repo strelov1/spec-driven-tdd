@@ -13,7 +13,7 @@ VENDORED_SKILLS=(
   finishing-a-development-branch subagent-driven-development
   dispatching-parallel-agents brainstorming
 )
-PREFIX='[Superpowers 5.1.0, MIT]'
+PREFIX='[Superpowers 6.2.0, MIT]'
 
 echo "Test: every bundled skill is top-level with name + description frontmatter"
 for skill in "${PACK_SKILLS[@]}" "${VENDORED_SKILLS[@]}"; do

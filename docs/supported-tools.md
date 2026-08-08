@@ -9,6 +9,6 @@
 | opencode | `skills/` discovery | `AGENTS.md` | `hooks/session-start` (default shape) |
 
 All harnesses share `skills/` and `hooks/session-start`. The vendored Superpowers
-skills (pinned 5.1.0) ship as top-level skills under `skills/`, so every harness
+skills (pinned 6.2.0) ship as top-level skills under `skills/`, so every harness
 gets them; subagent/parallel modes remain Claude-only. See
 `docs/dependencies.md` for the capability table.
