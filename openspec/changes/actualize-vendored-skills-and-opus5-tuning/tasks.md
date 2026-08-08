@@ -15,12 +15,12 @@
 
 ## 3. `init-context` CLI command
 
-- [ ] 3.1 Write `tests/test-init-context.sh`: covers creating `AGENTS.md` + `CLAUDE.md`/`GEMINI.md` symlinks in an empty target dir, skipping each of the three when already present (regular file, symlink to a different target, and dangling symlink), and exiting 0 when all three are already present
-- [ ] 3.2 Implement `init-context` in `bin/cli.js`: parse `--dir`, add the command to the dispatch switch, create `AGENTS.md` from a minimal generic template only if missing, symlink `CLAUDE.md`/`GEMINI.md` to `AGENTS.md` only if missing, print `skipped: <name> already exists` for anything already present, update `help()` usage text
-- [ ] 3.3 Re-run `tests/test-init-context.sh` and the full `npm test` suite, confirm green
-- [ ] 3.4 Simplify pass on the `bin/cli.js` diff
-- [ ] 3.5 Request + receive code review on the `init-context` diff; fix Critical + Important
-- [ ] 3.6 Add a short mention of `init-context` to `docs/installation.md`
+- [x] 3.1 Write `tests/test-init-context.sh`: covers creating `AGENTS.md` + `CLAUDE.md`/`GEMINI.md` symlinks in an empty target dir, skipping each of the three when already present (regular file, symlink to a different target, and dangling symlink), and exiting 0 when all three are already present
+- [x] 3.2 Implement `init-context` in `bin/cli.js`: parse `--dir`, add the command to the dispatch switch, create `AGENTS.md` from a minimal generic template only if missing, symlink `CLAUDE.md`/`GEMINI.md` to `AGENTS.md` only if missing, print `skipped: <name> already exists` for anything already present, update `help()` usage text
+- [x] 3.3 Re-run `tests/test-init-context.sh` and the full `npm test` suite, confirm green
+- [x] 3.4 Simplify pass on the `bin/cli.js` diff
+- [x] 3.5 Request + receive code review on the `init-context` diff; fix Critical + Important (fixed a TOCTOU race: switched to atomic exclusive-create + EEXIST handling instead of check-then-act)
+- [x] 3.6 Add a short mention of `init-context` to `docs/installation.md`
 
 ## 4. Finish
 

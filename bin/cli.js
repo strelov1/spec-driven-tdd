@@ -85,15 +85,19 @@ function copyInto(target) {
   }
 }
 
-// lstat (not existsSync) so a dangling symlink still counts as "exists" —
-// existsSync follows symlinks and reports false for a broken one.
-function pathExists(p) {
+// Exclusive create-or-skip: attempts `create()` and reports which happened.
+// Using an atomic O_EXCL-style call (rather than check-then-act) means a file
+// that appears between calls is never clobbered and never crashes the command
+// — both `fs.writeFileSync(..., {flag: 'wx'})` and `fs.symlinkSync` fail with
+// EEXIST for a path that already exists, whether a regular file or any kind
+// of symlink (dangling or not).
+function createIfMissing(label, create) {
   try {
-    fs.lstatSync(p);
-    return true;
+    create();
+    console.log(`created: ${label}`);
   } catch (err) {
-    if (err.code === 'ENOENT') return false;
-    throw err;
+    if (err.code !== 'EEXIST') throw err;
+    console.log(`skipped: ${label} already exists`);
   }
 }
 
@@ -116,21 +120,13 @@ function initContext(opts) {
     fs.mkdirSync(target, { recursive: true });
 
     const agentsPath = path.join(target, 'AGENTS.md');
-    if (pathExists(agentsPath)) {
-      console.log('skipped: AGENTS.md already exists');
-    } else {
-      fs.writeFileSync(agentsPath, agentsTemplate(target));
-      console.log('created: AGENTS.md');
-    }
+    createIfMissing('AGENTS.md', () =>
+      fs.writeFileSync(agentsPath, agentsTemplate(target), { flag: 'wx' })
+    );
 
     for (const name of ['CLAUDE.md', 'GEMINI.md']) {
       const linkPath = path.join(target, name);
-      if (pathExists(linkPath)) {
-        console.log(`skipped: ${name} already exists`);
-      } else {
-        fs.symlinkSync('AGENTS.md', linkPath);
-        console.log(`created: ${name} -> AGENTS.md`);
-      }
+      createIfMissing(name, () => fs.symlinkSync('AGENTS.md', linkPath));
     }
   } catch (err) {
     console.error(`init-context failed: ${err.message}`);
