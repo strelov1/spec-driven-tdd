@@ -85,6 +85,56 @@ function copyInto(target) {
   }
 }
 
+// Exclusive create-or-skip: attempts `create()` and reports which happened.
+// Using an atomic O_EXCL-style call (rather than check-then-act) means a file
+// that appears between calls is never clobbered and never crashes the command
+// — both `fs.writeFileSync(..., {flag: 'wx'})` and `fs.symlinkSync` fail with
+// EEXIST for a path that already exists, whether a regular file or any kind
+// of symlink (dangling or not).
+function createIfMissing(label, create) {
+  try {
+    create();
+    console.log(`created: ${label}`);
+  } catch (err) {
+    if (err.code !== 'EEXIST') throw err;
+    console.log(`skipped: ${label} already exists`);
+  }
+}
+
+function agentsTemplate(target) {
+  const name = path.basename(target);
+  return (
+    `# ${name}\n\n` +
+    'This file is the shared agent context for AGENTS.md-compatible harnesses. ' +
+    '`CLAUDE.md` and `GEMINI.md` in this directory are symlinks to this file, ' +
+    'so every harness reads the same content.\n'
+  );
+}
+
+// Bootstraps a *consuming* project's own AGENTS.md/CLAUDE.md/GEMINI.md trio —
+// unrelated to installing this pack. Never overwrites an existing file or
+// symlink; each of the three is independently create-or-skip.
+function initContext(opts) {
+  const target = path.resolve(opts.dir || process.cwd());
+  try {
+    fs.mkdirSync(target, { recursive: true });
+
+    const agentsPath = path.join(target, 'AGENTS.md');
+    createIfMissing('AGENTS.md', () =>
+      fs.writeFileSync(agentsPath, agentsTemplate(target), { flag: 'wx' })
+    );
+
+    for (const name of ['CLAUDE.md', 'GEMINI.md']) {
+      const linkPath = path.join(target, name);
+      createIfMissing(name, () => fs.symlinkSync('AGENTS.md', linkPath));
+    }
+  } catch (err) {
+    console.error(`init-context failed: ${err.message}`);
+    return 1;
+  }
+  return 0;
+}
+
 function hasOnPath(bin) {
   try {
     execFileSync(process.platform === 'win32' ? 'where' : 'which', [bin], {
@@ -158,12 +208,17 @@ function help() {
 
 Usage:
   npx spec-driven-tdd install [--harness <name>] [--dir <path>] [--skip-deps]
+  npx spec-driven-tdd init-context [--dir <path>]
   npx spec-driven-tdd doctor
 
 Options:
   --harness   claude | cursor | codex | gemini | opencode  (default: claude)
-  --dir       target directory (default: ~/.claude/plugins/spec-driven-tdd)
+  --dir       target directory (default: ~/.claude/plugins/spec-driven-tdd for
+              install; current directory for init-context)
   --skip-deps skip the OpenSpec / Superpowers dependency report
+
+init-context bootstraps a project's own AGENTS.md, symlinking CLAUDE.md and
+GEMINI.md to it. It never overwrites an existing file or symlink.
 `);
   return 0;
 }
@@ -183,6 +238,9 @@ function main() {
   switch (opts.command) {
     case 'install':
       code = install(opts);
+      break;
+    case 'init-context':
+      code = initContext(opts);
       break;
     case 'doctor':
     case 'check':

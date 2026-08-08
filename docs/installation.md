@@ -37,3 +37,16 @@ The thin `using-spec-driven-tdd` entry skill announces the workflow: when you
 start an OpenSpec change it tells the agent to invoke the `spec-driven-tdd`
 orchestrator before writing code. No extra setup is required — discovery of the
 skill is enough.
+
+## 4. Bootstrap a project's own context files (optional)
+
+For any project — not just ones using this pack — `init-context` scaffolds a
+shared `AGENTS.md` with `CLAUDE.md` and `GEMINI.md` symlinked to it, so every
+harness reads the same content instead of three hand-copied files:
+
+```bash
+npx spec-driven-tdd init-context [--dir <path>]
+```
+
+It never overwrites an existing file or symlink — anything already present is
+reported as skipped and left untouched.

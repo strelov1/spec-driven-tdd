@@ -6,3 +6,6 @@ worktree, implement each task via TDD → simplify → review, then finish + arc
 
 See `skills/spec-driven-tdd/SKILL.md` for the full workflow and
 `docs/dependencies.md` for what must be installed.
+
+Keep responses focused, brief, and concise. Spend most of the response on the
+outcome, not on narrating steps already taken.

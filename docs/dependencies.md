@@ -3,7 +3,7 @@
 | Dependency | Required? | Provides |
 |------------|-----------|----------|
 | [OpenSpec](https://www.npmjs.com/package/@fission-ai/openspec) CLI + initialized project | Yes (npm dep) | `/opsx:*`, change/task tracking |
-| [Superpowers](https://github.com/obra/superpowers) skills | Bundled (vendored, pinned 5.1.0) | TDD, code review, debugging, worktrees, finishing, brainstorming |
+| [Superpowers](https://github.com/obra/superpowers) skills | Bundled (vendored, pinned 6.2.0) | TDD, code review, debugging, worktrees, finishing, brainstorming |
 | `simplify` skill | Bundled | quality pass (ships in this pack) |
 | `spike` skill | Bundled | optional, risk-gated feasibility check in the Plan phase (ships in this pack) |
 | Claude Code `/code-review` | Optional | extra built-in bug pass (CC only) |
@@ -20,7 +20,7 @@
 ## Per-harness capability
 
 The Superpowers skills are bundled as top-level skills (vendored snapshot, pinned
-5.1.0). Vendoring carries the *text*; some skills need Claude-only runtime
+6.2.0). Vendoring carries the *text*; some skills need Claude-only runtime
 primitives and degrade elsewhere:
 
 | Capability | Claude Code | Codex / Gemini / opencode |
@@ -31,7 +31,7 @@ primitives and degrade elsewhere:
 
 The vendored copy is a committed snapshot, refreshed with `npm run
 vendor:superpowers`. Each vendored skill's description is prefixed
-`[Superpowers 5.1.0, MIT]`; if you also run the Superpowers marketplace plugin,
+`[Superpowers 6.2.0, MIT]`; if you also run the Superpowers marketplace plugin,
 skip those skills to avoid duplicates. Superpowers is MIT (© 2025 Jesse Vincent);
 its license ships at `skills/SUPERPOWERS-LICENSE` (attribution in
 `skills/SUPERPOWERS-NOTICE.md`).

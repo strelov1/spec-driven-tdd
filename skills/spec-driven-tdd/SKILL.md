@@ -58,9 +58,11 @@ path). Then, for EACH pending task, run this micro-cycle:
 7. **Mark done** — only now flip the task `- [ ]` → `- [x]` in the OpenSpec
    tasks file.
 
-**Optional mode — large changes:** instead of the inline loop, invoke
-`subagent-driven-development` to dispatch each task to a fresh subagent with
-per-task review. Use `dispatching-parallel-agents` when tasks are independent.
+**Optional mode — large changes:** delegate to `subagent-driven-development`
+only when the task list is genuinely large and tasks are independent — not for
+a handful of tasks you can run inline. It dispatches each task to a fresh
+subagent with per-task review. Use `dispatching-parallel-agents` only for
+tasks with no shared state, and keep the number of concurrent subagents low.
 
 Pause and ask if a task is ambiguous or implementation reveals a design issue
 (then suggest updating the OpenSpec artifacts).

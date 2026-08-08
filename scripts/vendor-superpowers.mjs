@@ -15,7 +15,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const VERSION = '5.1.0';
+const VERSION = '6.2.0';
 const REPO = 'https://github.com/obra/superpowers';
 const SKILLS = [
   'test-driven-development',

@@ -29,10 +29,10 @@ else
 fi
 
 # version pin recorded in the committed notice
-if [ -f "$SKILLS_DIR/SUPERPOWERS-NOTICE.md" ] && grep -q '5.1.0' "$SKILLS_DIR/SUPERPOWERS-NOTICE.md"; then
-  echo "  ok: SUPERPOWERS-NOTICE.md pins 5.1.0"; PASS=$((PASS + 1))
+if [ -f "$SKILLS_DIR/SUPERPOWERS-NOTICE.md" ] && grep -q '6.2.0' "$SKILLS_DIR/SUPERPOWERS-NOTICE.md"; then
+  echo "  ok: SUPERPOWERS-NOTICE.md pins 6.2.0"; PASS=$((PASS + 1))
 else
-  echo "  FAIL: SUPERPOWERS-NOTICE.md missing or not pinned to 5.1.0"; FAIL=$((FAIL + 1))
+  echo "  FAIL: SUPERPOWERS-NOTICE.md missing or not pinned to 6.2.0"; FAIL=$((FAIL + 1))
 fi
 
 # the refresh script targets top-level skills/, not a nested vendor/ path segment.
